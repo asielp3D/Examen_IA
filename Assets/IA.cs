@@ -61,21 +61,71 @@ public class IA : MonoBehaviour
 
     void SetRandomPoint()
     {
+        agent.destination = patrolPoints[Random.Range(0, patrolPoints.Length - 1)].position;
+    }
 
+    bool IsInRange(float range)
+    {
+        if(Vector3.Distance(transform.position, player.position) < range) 
+        {
+            return true;
+        }
+
+        else
+        {
+            return false;
+        }
     }
 
     void Patrol()
     {
+         if(IsInRange(detectionRange) == true) 
+        {
+            currentState = State.Chasing;
+        }
 
+        if(agent.remainingDistance < 0.5f)
+        {
+            SetRandomPoint();
+        }
     }
 
     void Chase()
     {
+        if(IsInRange(detectionRange) == true) 
+        {
+            SetRandomPoint();
+            currentState = State.Patrolling;
+        }
+
+        if(IsInRange(attackRange) == true) 
+        {
+            currentState = State.Attacking;
+        }
         
+        agent.destination = player.position; 
     }
 
     void Attack()
     {
+        Debug.Log ("Ataque!");
+
+        currentState = State.Chasing;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
         
+        foreach(Transform points in patrolPoints)
+        {
+            Gizmos.DrawWireSphere(points.position, 0.5f);
+        }
+        
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
